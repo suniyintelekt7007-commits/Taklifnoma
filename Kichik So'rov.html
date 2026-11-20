@@ -1,0 +1,482 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Kichik So'rov</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@500;600;700&display=swap">
+<style>
+  /* Layout: one cream card floating on a peach wash; four scenes swap inside it
+     (ask, yay, plan, done). The "No" button is positioned against the card. */
+  :root {
+    --bg1: #f4cfc0;
+    --bg2: #e9c4d0;
+    --card: #f3f1e2;
+    --card-line: rgba(60, 40, 30, .08);
+    --ink: #2b211d;
+    --muted: #8a7c74;
+    --red: #e1462c;
+    --green: #a9cf98;
+    --green-ink: #26401f;
+    --petal-a: #f6b9a0;
+    --petal-b: #ee8f7a;
+    --f-serif: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+    --f-ui: "Inter", system-ui, sans-serif;
+    color-scheme: light;
+  }
+  html, body { min-height: 100%; }
+  body {
+    margin: 0;
+    background-color: var(--bg1);
+    background-image: linear-gradient(160deg, var(--bg1), var(--bg2));
+    background-attachment: fixed;
+    color: var(--ink);
+    font-family: var(--f-ui);
+    -webkit-font-smoothing: antialiased;
+  }
+  .page {
+    min-height: 100vh;
+    box-sizing: border-box;
+    display: grid;
+    place-items: center;
+    padding-block: 56px 72px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .col { width: min(360px, 100%); display: grid; gap: 14px; justify-items: center; }
+
+  .badge {
+    font: 700 9.5px/1 var(--f-ui); letter-spacing: .16em; text-transform: uppercase;
+    color: var(--red); background: rgba(255, 240, 236, .75);
+    border: 1px solid rgba(225, 70, 44, .35); border-radius: 999px; padding: 6px 11px;
+    display: inline-flex; gap: 6px; align-items: center;
+  }
+  .badge::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--red); }
+
+  .card {
+    position: relative; width: 100%; box-sizing: border-box;
+    background-color: var(--card);
+    background-image: repeating-linear-gradient(0deg, transparent 0 3px, rgba(120, 100, 70, .035) 3px 4px);
+    border: 1px solid var(--card-line);
+    border-radius: 16px;
+    padding: 24px 22px 26px;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, .7) inset, 0 18px 40px -18px rgba(110, 50, 40, .45);
+    min-height: 372px;
+  }
+  .scene { display: none; animation: rise .45s ease both; }
+  .scene.on { display: block; }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  .kicker { font: 700 9.5px/1 var(--f-ui); letter-spacing: .18em; text-transform: uppercase; color: var(--muted); text-align: center; margin: 2px 0 14px; }
+  h1 {
+    margin: 0; text-align: center; text-wrap: balance;
+    font: 400 clamp(32px, 9.4vw, 38px)/1.02 var(--f-serif); letter-spacing: -.01em;
+  }
+  h1 em { color: var(--red); font-style: italic; }
+  .sub { text-align: center; font-size: 11.5px; color: var(--muted); margin: 12px 0 0; min-height: 16px; }
+
+  .count {
+    position: absolute; top: 12px; right: 12px;
+    font: 600 9.5px/1 var(--f-ui); color: var(--red);
+    background: #fbe4dc; border-radius: 999px; padding: 5px 8px;
+    opacity: 0; transition: opacity .3s;
+  }
+  .count.on { opacity: 1; }
+
+  .flower { display: block; width: 104px; height: 104px; margin: 14px auto 6px; overflow: visible; }
+  .flower .spin { transform-origin: 52px 38px; animation: spin 9s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .actions { display: flex; gap: 12px; align-items: center; margin-top: 10px; min-height: 52px; }
+  .yes {
+    flex: 1 1 auto; border: 0; cursor: pointer;
+    background: var(--green); color: var(--green-ink);
+    font: 700 16px/1 var(--f-ui); letter-spacing: .02em; text-transform: uppercase;
+    height: 48px; border-radius: 10px;
+    box-shadow: 0 8px 16px -8px rgba(60, 110, 50, .6);
+    transition: height .35s cubic-bezier(.3, 1.4, .5, 1), font-size .35s, transform .15s;
+  }
+  .yes:hover { transform: translateY(-1px); }
+  .yes:active { transform: translateY(1px); }
+  .no {
+    flex: 0 0 auto; cursor: pointer;
+    font: 600 11px/1 var(--f-ui); color: var(--red);
+    background: #fff; border: 1px solid rgba(225, 70, 44, .3); border-radius: 8px; padding: 9px 12px;
+    box-shadow: 0 4px 10px -6px rgba(0, 0, 0, .3);
+    touch-action: none;
+  }
+  .no.run { position: absolute; z-index: 2; transition: left .28s cubic-bezier(.3, 1.3, .5, 1), top .28s cubic-bezier(.3, 1.3, .5, 1), transform .3s, opacity .3s; }
+
+  .cta {
+    display: block; width: 100%; margin-top: 18px; border: 0; cursor: pointer;
+    font: 700 13px/1 var(--f-ui); letter-spacing: .02em;
+    color: #fff; background: var(--red); border-radius: 10px; padding: 15px 16px;
+    box-shadow: 0 10px 18px -10px rgba(225, 70, 44, .9);
+  }
+  .cta:hover { filter: brightness(1.06); }
+  .cta:disabled { cursor: not-allowed; background: #dfe6cf; color: #8d977c; box-shadow: none; }
+  .cta.green { background: var(--green); color: var(--green-ink); box-shadow: none; }
+
+  .yay .flower { margin-top: 18px; }
+  .yay .cta { margin-top: 22px; }
+
+  .field { display: grid; gap: 6px; min-width: 0; }
+  .field label, .lbl { font: 700 9px/1 var(--f-ui); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+  .field input {
+    font: 500 12px var(--f-ui); color: var(--ink); min-width: 0; box-sizing: border-box; width: 100%;
+    background: rgba(255, 255, 255, .55); border: 1px solid rgba(60, 40, 30, .14); border-radius: 8px; padding: 9px 9px;
+  }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
+  .plan { margin-top: 16px; display: grid; gap: 9px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; }
+  .chip {
+    font: 600 11px/1 var(--f-ui); color: var(--ink); cursor: pointer;
+    background: rgba(255, 255, 255, .6); border: 1px solid rgba(60, 40, 30, .14); border-radius: 999px;
+    padding: 8px 11px; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .chip i { width: 7px; height: 7px; border-radius: 50%; background: var(--dot); }
+  .chip[aria-pressed="true"] { background: var(--ink); color: #fff8f2; border-color: var(--ink); }
+
+  .summary { margin: 18px 0 0; text-align: center; font: 500 14px/1.45 var(--f-ui); }
+  .again { display: block; margin: 12px auto 0; background: none; border: 0; color: var(--muted); font: 600 11px var(--f-ui); cursor: pointer; text-decoration: underline; }
+
+  :focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+
+  .heart { position: fixed; top: -30px; z-index: 20; pointer-events: none; font-size: 22px; animation: fall linear forwards; }
+  @keyframes fall { to { transform: translateY(110vh) rotate(var(--r)); opacity: .9; } }
+
+  .editBtn {
+    position: fixed; z-index: 30;
+    left: max(14px, env(safe-area-inset-left, 0px)); bottom: calc(env(safe-area-inset-bottom, 0px) + 14px);
+    font: 600 10.5px/1 var(--f-ui); letter-spacing: .12em; text-transform: uppercase; color: var(--ink);
+    background: rgba(255, 250, 245, .8); border: 1px solid rgba(60, 40, 30, .2); border-radius: 999px; padding: 9px 13px; cursor: pointer;
+  }
+  #panel {
+    position: fixed; z-index: 30;
+    left: max(14px, env(safe-area-inset-left, 0px)); bottom: calc(env(safe-area-inset-bottom, 0px) + 56px);
+    width: min(340px, calc(100vw - 28px)); max-height: 70vh; overflow-y: auto; box-sizing: border-box;
+    background: #fffaf4; border: 1px solid rgba(60, 40, 30, .18); border-radius: 14px; padding: 14px;
+    display: grid; gap: 9px; box-shadow: 0 20px 40px -16px rgba(60, 30, 20, .5);
+  }
+  #panel[hidden] { display: none; }
+  #panel label { display: grid; gap: 4px; font: 700 9px/1 var(--f-ui); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+  #panel input, #panel textarea {
+    font: 500 13px var(--f-ui); color: var(--ink); box-sizing: border-box; width: 100%; min-width: 0;
+    background: #fff; border: 1px solid rgba(60, 40, 30, .16); border-radius: 8px; padding: 8px 9px; resize: vertical;
+  }
+  #panel .hint { font: 500 11px/1.4 var(--f-ui); color: var(--muted); margin: 0; }
+  #panel .row { display: flex; gap: 8px; position: sticky; bottom: -14px; background: #fffaf4; padding: 8px 0 2px; }
+  #panel .row button { flex: 1; font: 700 12px var(--f-ui); padding: 10px; border-radius: 8px; border: 1px solid rgba(60, 40, 30, .2); background: #fff; cursor: pointer; }
+  #panel .row .go { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  @media (prefers-reduced-motion: reduce) { .flower .spin { animation: none; } .scene { animation: none; } }
+</style>
+
+<main class="page">
+  <div class="col">
+    <span class="badge" id="badge"></span>
+    <section class="card" id="card">
+      <div class="scene on" id="s1">
+        <span class="count" id="count"></span>
+        <div class="kicker" id="k1"></div>
+        <h1 id="t1"></h1>
+        <p class="sub" id="sub1" aria-live="polite"></p>
+        <svg class="flower" viewBox="0 0 104 104" aria-hidden="true">
+          <path d="M52 52 C 50 74, 56 90, 52 104" stroke="#8fb97f" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+          <path d="M53 84 C 64 78, 74 80, 78 88 C 68 92, 58 91, 53 84Z" fill="#a9cf98"/>
+          <g class="spin">
+            <g id="petals"></g>
+            <circle cx="52" cy="38" r="4" fill="#f9dcc8"/>
+          </g>
+        </svg>
+        <div class="actions" id="actions">
+          <button class="yes" id="yes" type="button"></button>
+          <button class="no" id="no" type="button"></button>
+        </div>
+      </div>
+
+      <div class="scene yay" id="s2">
+        <div class="kicker" id="k2"></div>
+        <h1 id="t2"></h1>
+        <svg class="flower" viewBox="0 0 104 104" aria-hidden="true"><use href="#petalsSym"/></svg>
+        <p class="sub" id="sub2"></p>
+        <button class="cta" id="go3" type="button"></button>
+      </div>
+
+      <div class="scene" id="s3">
+        <div class="kicker" id="k3"></div>
+        <h1 id="t3"></h1>
+        <div class="two">
+          <div class="field"><label for="day" id="lDay"></label><input id="day" type="date"></div>
+          <div class="field"><label for="time" id="lTime"></label><input id="time" type="time"></div>
+        </div>
+        <div class="plan"><span class="lbl" id="lPlan" style="text-align:center"></span><div class="chips" id="chips" role="group"></div></div>
+        <button class="cta green" id="submit" type="button" disabled></button>
+      </div>
+
+      <div class="scene" id="s4">
+        <div class="kicker" id="k4"></div>
+        <h1 id="t4"></h1>
+        <svg class="flower" viewBox="0 0 104 104" aria-hidden="true"><use href="#petalsSym"/></svg>
+        <p class="summary" id="sum"></p>
+        <button class="cta" id="copy" type="button"></button>
+        <button class="again" id="again" type="button"></button>
+      </div>
+    </section>
+  </div>
+</main>
+
+<button class="editBtn" id="editBtn" type="button" aria-expanded="false" aria-controls="panel">Matnni o'zgartirish</button>
+<form id="panel" hidden></form>
+
+<script>
+(() => {
+  /* ---------- Matnlar. Sahifadagi "Matnni o'zgartirish" paneli shularni o'zgartiradi ---------- */
+  const FIELDS = [
+    ['badge', 'Yuqoridagi yorliq', 'line'],
+    ['k1', 'Savol ustidagi kichik yozuv', 'line'],
+    ['t1', 'Savol (*so\'z* qizil bo\'ladi)', 'line'],
+    ['dodges', 'Yo\'q qochganda pastki yozuvlar (har qator alohida)', 'multi'],
+    ['yes', '“Ha” tugmasi', 'line'],
+    ['no', '“Yo\'q” tugmasi', 'line'],
+    ['noMoves', '“Yo\'q” qochgandagi yozuvlar (har qator alohida)', 'multi'],
+    ['dodgeBadge', 'Qochish hisoblagichi ({n} = son)', 'line'],
+    ['k2', 'Rozilik: kichik yozuv', 'line'],
+    ['t2', 'Rozilik: sarlavha', 'line'],
+    ['s2', 'Rozilik: pastki yozuv', 'line'],
+    ['b2', 'Rozilik: tugma', 'line'],
+    ['k3', 'Reja: kichik yozuv', 'line'],
+    ['t3', 'Reja: sarlavha', 'line'],
+    ['lDay', 'Kun yorlig\'i', 'line'],
+    ['lTime', 'Vaqt yorlig\'i', 'line'],
+    ['lPlan', 'Reja yorlig\'i', 'line'],
+    ['chips', 'Reja variantlari (har qator alohida)', 'multi'],
+    ['b3', 'Reja tugmasi', 'line'],
+    ['k4', 'Yakun: kichik yozuv', 'line'],
+    ['t4', 'Yakun: sarlavha', 'line'],
+    ['s4', 'Yakun: xulosa ({day} {time} {plan})', 'line'],
+    ['b4', 'Yakun: nusxalash tugmasi', 'line'],
+    ['copied', 'Nusxalangandan keyingi yozuv', 'line'],
+    ['again', 'Qayta boshlash', 'line'],
+    ['msg', 'Yuboriladigan xabar ({day} {time} {plan})', 'line']
+  ];
+  const DEFAULTS = {
+    badge: 'Maktub',
+    k1: "Kichik so'rov",
+    t1: "Men bilan *uchrashasanmi*?",
+    dodges: "Qani, ushlab ko'r.\nYaxshi urinish, qochib ketdi.\nSevgidan ham tezroq.\n“Yo'q” kutib turibdi...\nJuda uyatchan.",
+    yes: 'Ha',
+    no: "Yo'q",
+    noMoves: "Aniqmi?\nKut—\nYana o'yla?",
+    dodgeBadge: '{n} marta qochdi',
+    k2: 'Uchrashuv tasdiqlandi',
+    t2: "Voy, bu *uchrashuv*.",
+    s2: "Ko'rdingmi? Unchalik qiyin emas ekan 💛",
+    b2: 'Endi rejalashtiramiz →',
+    k3: 'Rasmiylashtiramiz',
+    t3: "Kunni, vaqtni va *rejani* tanla",
+    lDay: 'Qaysi kun?',
+    lTime: 'Soat nechada?',
+    lPlan: 'Reja',
+    chips: "Kofe\nKino\nKechki ovqat\nParkda sayr\nIchimliklar\nSyurpriz",
+    b3: 'Kun, vaqt va rejani tanlash',
+    k4: 'Tayyor',
+    t4: "Kelishdik, *uchrashamiz*!",
+    s4: '{day} kuni soat {time} da. Reja: {plan}.',
+    b4: 'Xabarni nusxalash',
+    copied: 'Nusxalandi, yuborsa bo\'ladi',
+    again: 'Boshidan boshlash',
+    msg: "Men roziman! Uchrashuv: {day}, soat {time}. Reja: {plan}."
+  };
+  let T = { ...DEFAULTS };
+  try { const s = JSON.parse(localStorage.getItem('sorov-text') || 'null'); if (s && typeof s === 'object') T = { ...T, ...s }; } catch (e) {}
+
+  const $ = id => document.getElementById(id);
+  const lines = s => String(s).split('\n').map(x => x.trim()).filter(Boolean);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const rich = s => esc(s).replace(/\*(.+?)\*/g, '<em>$1</em>');
+  const fill = (s, o) => String(s).replace(/\{(\w+)\}/g, (m, k) => (k in o ? o[k] : m));
+
+  /* ---------- gul (shamolcha) ---------- */
+  (function drawPetals() {
+    const g = $('petals');
+    let h = '';
+    for (let i = 0; i < 5; i++) {
+      const a = i * 72;
+      h += `<path transform="rotate(${a} 52 38)" d="M52 38 C 40 28, 44 8, 52 6 C 60 8, 64 28, 52 38Z" fill="${i % 2 ? '#f6b9a0' : '#ee8f7a'}" opacity=".92"/>`;
+    }
+    g.innerHTML = h;
+    const sym = document.createElementNS('http://www.w3.org/2000/svg', 'symbol');
+    sym.id = 'petalsSym'; sym.setAttribute('viewBox', '0 0 104 104');
+    sym.innerHTML = `<path d="M52 52 C 50 74, 56 90, 52 104" stroke="#8fb97f" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M53 84 C 64 78, 74 80, 78 88 C 68 92, 58 91, 53 84Z" fill="#a9cf98"/>${h}<circle cx="52" cy="38" r="4" fill="#f9dcc8"/>`;
+    const holder = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    holder.setAttribute('width', '0'); holder.setAttribute('height', '0');
+    holder.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden';
+    holder.appendChild(sym); document.body.appendChild(holder);
+  })();
+
+  /* ---------- matnlarni joylash ---------- */
+  function paint() {
+    $('badge').textContent = T.badge;
+    $('k1').textContent = T.k1; $('t1').innerHTML = rich(T.t1);
+    $('yes').textContent = T.yes; $('no').textContent = T.no;
+    $('k2').textContent = T.k2; $('t2').innerHTML = rich(T.t2); $('sub2').textContent = T.s2; $('go3').textContent = T.b2;
+    $('k3').textContent = T.k3; $('t3').innerHTML = rich(T.t3);
+    $('lDay').textContent = T.lDay; $('lTime').textContent = T.lTime; $('lPlan').textContent = T.lPlan;
+    $('submit').textContent = T.b3;
+    $('k4').textContent = T.k4; $('t4').innerHTML = rich(T.t4); $('copy').textContent = T.b4; $('again').textContent = T.again;
+    const dots = ['#e1462c', '#6b8f5a', '#e0a53a', '#4d8fb5', '#9a6bb0', '#d9708f'];
+    $('chips').innerHTML = lines(T.chips).map((c, i) =>
+      `<button type="button" class="chip" aria-pressed="false" data-v="${esc(c)}" style="--dot:${dots[i % dots.length]}"><i></i>${esc(c)}</button>`).join('');
+    setSub(); checkForm();
+  }
+
+  /* ---------- sahnalar ---------- */
+  function show(id) {
+    ['s1', 's2', 's3', 's4'].forEach(s => $(s).classList.toggle('on', s === id));
+  }
+
+  /* ---------- “Yo'q” qochadi, “Ha” kattalashadi ---------- */
+  let n = 0, lastD = 0, running = false;
+  const card = $('card'), no = $('no'), yes = $('yes');
+  const ptr = { x: -999, y: -999 };
+
+  function setSub() {
+    const d = lines(T.dodges);
+    $('sub1').textContent = d.length ? d[Math.min(n, d.length - 1)] : '';
+    const c = $('count');
+    c.textContent = fill(T.dodgeBadge, { n });
+    c.classList.toggle('on', n > 0);
+  }
+
+  function dodge() {
+    const now = performance.now();
+    if (now - lastD < 380) return;
+    lastD = now; n++;
+    const cr = card.getBoundingClientRect();
+    if (!running) {
+      const r = no.getBoundingClientRect();
+      no.classList.add('run');
+      no.style.left = (r.left - cr.left) + 'px'; no.style.top = (r.top - cr.top) + 'px';
+      void no.offsetWidth; running = true;
+    }
+    const moves = lines(T.noMoves);
+    if (n >= 2 && moves.length) no.textContent = moves[(n - 2) % moves.length];
+    const nr = no.getBoundingClientRect(), bw = nr.width, bh = nr.height;
+    const yr = yes.getBoundingClientRect();
+    let best = null;
+    for (let i = 0; i < 24; i++) {
+      const x = 10 + Math.random() * (cr.width - bw - 20);
+      const y = 56 + Math.random() * (cr.height - bh - 70);
+      const ax = cr.left + x, ay = cr.top + y;
+      const nearPtr = Math.hypot(ax + bw / 2 - ptr.x, ay + bh / 2 - ptr.y) < 110;
+      const onYes = ax < yr.right + 6 && ax + bw > yr.left - 6 && ay < yr.bottom + 6 && ay + bh > yr.top - 6;
+      if (!nearPtr && !onYes) { best = { x, y }; break; }
+      if (!best) best = { x, y };
+    }
+    no.style.left = best.x + 'px'; no.style.top = best.y + 'px';
+    const k = Math.max(.55, 1 - n * .06);
+    no.style.transform = `scale(${k})`; no.style.opacity = String(Math.max(.45, 1 - n * .06));
+    yes.style.height = Math.min(48 + n * 7, 124) + 'px';
+    yes.style.fontSize = Math.min(16 + n * 1.6, 30) + 'px';
+    setSub();
+  }
+
+  document.addEventListener('pointermove', e => {
+    ptr.x = e.clientX; ptr.y = e.clientY;
+    if (!$('s1').classList.contains('on')) return;
+    const r = no.getBoundingClientRect();
+    if (Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2)) < Math.max(r.width, 60) * .9 + 22) dodge();
+  });
+  no.addEventListener('pointerdown', e => { e.preventDefault(); ptr.x = e.clientX; ptr.y = e.clientY; lastD = 0; dodge(); });
+  no.addEventListener('click', e => { e.preventDefault(); lastD = 0; dodge(); });
+  no.addEventListener('focus', () => { lastD = 0; dodge(); no.blur(); });
+
+  function resetAsk() {
+    n = 0; running = false;
+    no.classList.remove('run'); no.removeAttribute('style'); no.textContent = T.no;
+    yes.removeAttribute('style'); setSub();
+  }
+
+  /* ---------- konfeti ---------- */
+  function hearts() {
+    const set = ['❤️', '💛', '💚', '💙', '💜', '🧡', '🩷'];
+    for (let i = 0; i < 46; i++) {
+      const s = document.createElement('span');
+      s.className = 'heart'; s.textContent = set[i % set.length];
+      s.style.left = (Math.random() * 100) + 'vw';
+      s.style.setProperty('--r', ((Math.random() - .5) * 720) + 'deg');
+      s.style.animationDuration = (2.4 + Math.random() * 2.2) + 's';
+      s.style.animationDelay = (Math.random() * 1.1) + 's';
+      s.style.fontSize = (16 + Math.random() * 18) + 'px';
+      document.body.appendChild(s);
+      setTimeout(() => s.remove(), 6200);
+    }
+  }
+
+  yes.addEventListener('click', () => { show('s2'); hearts(); });
+  $('go3').addEventListener('click', () => show('s3'));
+
+  /* ---------- reja ---------- */
+  let plan = '';
+  const day = $('day'), time = $('time'), submit = $('submit');
+  try { day.min = new Date().toISOString().slice(0, 10); } catch (e) {}
+  function checkForm() { submit.disabled = !(day.value && time.value && plan); }
+  day.addEventListener('input', checkForm); time.addEventListener('input', checkForm);
+  $('chips').addEventListener('click', e => {
+    const b = e.target.closest('.chip'); if (!b) return;
+    plan = b.dataset.v;
+    $('chips').querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', String(c === b)));
+    checkForm();
+  });
+
+  function pretty(d) { const p = d.split('-'); return p.length === 3 ? `${p[2]}.${p[1]}.${p[0]}` : d; }
+  submit.addEventListener('click', () => {
+    const o = { day: pretty(day.value), time: time.value, plan };
+    $('sum').textContent = fill(T.s4, o);
+    $('copy').textContent = T.b4;
+    show('s4');
+    hearts();
+  });
+  $('copy').addEventListener('click', () => {
+    const o = { day: pretty(day.value), time: time.value, plan };
+    const text = fill(T.msg, o);
+    const done = () => { $('copy').textContent = T.copied; };
+    try { navigator.clipboard.writeText(text).then(done, () => fallbackCopy(text, done)); } catch (e) { fallbackCopy(text, done); }
+  });
+  function fallbackCopy(text, done) {
+    const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) {} ta.remove();
+  }
+  $('again').addEventListener('click', () => {
+    plan = ''; day.value = ''; time.value = '';
+    $('chips').querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', 'false'));
+    checkForm(); resetAsk(); show('s1');
+  });
+
+  /* ---------- matn paneli ---------- */
+  const panel = $('panel'), editBtn = $('editBtn');
+  function buildPanel() {
+    panel.innerHTML = '<p class="hint">Matnlarni o\'zgartirib, “Qo\'llash” ni bosing. Qizil so\'z uchun uni *yulduzcha* ichiga oling.</p>' +
+      FIELDS.map(([k, label, type]) => type === 'multi'
+        ? `<label>${esc(label)}<textarea data-k="${k}" rows="4"></textarea></label>`
+        : `<label>${esc(label)}<input data-k="${k}" autocomplete="off"></label>`).join('') +
+      '<div class="row"><button type="submit" class="go">Qo\'llash</button><button type="button" id="resetBtn">Asl holiga</button></div>';
+    panel.querySelectorAll('[data-k]').forEach(el => { el.value = T[el.dataset.k]; });
+    $('resetBtn').addEventListener('click', () => { T = { ...DEFAULTS }; try { localStorage.removeItem('sorov-text'); } catch (e) {} apply(); buildPanel(); });
+  }
+  function apply() { resetAsk(); paint(); show('s1'); }
+  editBtn.addEventListener('click', () => {
+    panel.hidden = !panel.hidden; editBtn.setAttribute('aria-expanded', String(!panel.hidden));
+    if (!panel.hidden) buildPanel();
+  });
+  panel.addEventListener('submit', e => {
+    e.preventDefault();
+    panel.querySelectorAll('[data-k]').forEach(el => { T[el.dataset.k] = el.value.trim() || DEFAULTS[el.dataset.k]; });
+    try { localStorage.setItem('sorov-text', JSON.stringify(T)); } catch (err) {}
+    apply(); panel.hidden = true; editBtn.setAttribute('aria-expanded', 'false');
+  });
+
+  paint();
+})();
+</script>
+
+</body></html>
